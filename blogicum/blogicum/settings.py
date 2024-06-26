@@ -8,7 +8,10 @@ SECRET_KEY = 'django-insecure-$4_+ig5rimzk)rmo8_#ogg_36%j&(8a7iea61o$=0ftgpf6^$#
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+]
 
 
 INSTALLED_APPS = [
@@ -84,7 +87,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'Europe/Belgrade'
@@ -93,10 +95,10 @@ USE_I18N = True
 
 USE_TZ = True
 
+CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [BASE_DIR / 'static_dev']
-
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
