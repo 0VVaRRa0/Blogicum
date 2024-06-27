@@ -46,9 +46,9 @@ class Location(BaseModel):
 
     def __str__(self):
         return (
-            self.title[:TITLE_DISPLAY_LIMIT] + '...'
-            if len(self.title) > TITLE_DISPLAY_LIMIT
-            else self.title
+            self.name[:TITLE_DISPLAY_LIMIT] + '...'
+            if len(self.name) > TITLE_DISPLAY_LIMIT
+            else self.name
         )
 
 
