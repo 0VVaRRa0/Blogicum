@@ -21,20 +21,20 @@
           {% if user.is_authenticated %}
             <div class="btn-group" role="group" aria-label="Basic outlined example">
               <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
-                  href="{% url 'blog:create_post' %}">Написать пост</a></button>
+                  href="">Написать пост</a></button>
+                  {% comment %} {% url 'blog:create_post' %} {% endcomment %}
               <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
-                  href="{% url 'blog:profile' user.username %}">{{ user.username }}</a></button>
+                  href="">{{ user.username }}</a></button>
+                  {% comment %} {% url 'blog:profile' user.username %} {% endcomment %}
               <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
                   href="{% url 'logout' %}">Выйти</a></button>
             </div>
           {% else %}
             <div class="btn-group" role="group" aria-label="Basic outlined example">
               <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
-                  href="">Войти</a></button>
-                  {% comment %} href="{% url 'login' %}">Войти</a></button> {% endcomment %}
+                  href="{% url 'login' %}">Войти</a></button>
               <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
-                  href="">Регистрация</a></button>
-                  {% comment %} href="{% url 'registration' %}">Регистрация</a></button> {% endcomment %}
+                  href="{% url 'registration' %}">Регистрация</a></button>
             </div>
           {% endif %}
         </ul>
