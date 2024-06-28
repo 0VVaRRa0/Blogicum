@@ -74,6 +74,9 @@ class Post(BaseModel):
         Category, verbose_name='Категория',
         on_delete=models.SET_NULL, null=True
     )
+    image = models.ImageField(
+        'Изображение', upload_to='blog_images', blank=True
+    )
 
     class Meta:
         ordering = ['-pub_date']
