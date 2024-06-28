@@ -99,6 +99,8 @@ CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 
 LOGIN_REDIRECT_URL = '/'
 
+LOGIN_URL = '/auth/login/'
+
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [BASE_DIR / 'static_dev']

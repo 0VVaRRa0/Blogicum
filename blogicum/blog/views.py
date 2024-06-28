@@ -1,7 +1,9 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import DetailView, ListView
+from django.views.generic import CreateView, DetailView, ListView
 
 from .models import Category, Post
 
@@ -75,4 +77,20 @@ class ProfileListView(ListView):
             category__is_published=True,
             is_published=True,
             pub_date__lte=timezone.now(),
+        )
+
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    template_name = 'blog/create.html'
+    fields = ('title', 'text', 'pub_date', 'category', 'location', 'image')
+    success_url = reverse_lazy('blog:index')
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        return reverse_lazy(
+            'blog:profile', kwargs={'username': self.request.user.username}
         )
