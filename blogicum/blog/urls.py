@@ -11,6 +11,10 @@ urlpatterns = [
         'posts/<int:pk>/', views.PostDetailView.as_view(), name='post_detail'
     ),
     path(
+        'posts/<int:pk>/edit/',
+        views.PostUpdateView.as_view(), name='edit_post'
+    ),
+    path(
         'category/<slug:category_slug>/',
         views.CategoryPostsListView.as_view(), name='category_posts'
     ),

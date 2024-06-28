@@ -1,9 +1,9 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import CreateView, DetailView, ListView
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from .models import Category, Post
 
@@ -90,7 +90,30 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
-    def get_success_url(self) -> str:
+    def get_success_url(self):
         return reverse_lazy(
             'blog:profile', kwargs={'username': self.request.user.username}
+        )
+
+
+class OnlyAuthorMixin(UserPassesTestMixin):
+
+    def test_func(self):
+        object = self.get_object()
+        return object.author == self.request.user
+
+    def handle_no_permission(self):
+        object = self.get_object()
+        redirect_url = reverse_lazy('blog:post_detail', kwargs={'pk': object.pk})
+        return redirect(redirect_url)
+
+
+class PostUpdateView(OnlyAuthorMixin, UpdateView):
+    model = Post
+    template_name = 'blog/create.html'
+    fields = ('title', 'text', 'category', 'location', 'image')
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'blog:post_detail', kwargs={'pk': self.object.pk}
         )
