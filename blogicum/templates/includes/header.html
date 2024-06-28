@@ -24,8 +24,7 @@
                   href="">Написать пост</a></button>
                   {% comment %} {% url 'blog:create_post' %} {% endcomment %}
               <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
-                  href="">{{ user.username }}</a></button>
-                  {% comment %} {% url 'blog:profile' user.username %} {% endcomment %}
+                  href="{% url 'blog:profile' user.username %}">{{ user.username }}</a></button>
               <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
                   href="{% url 'logout' %}">Выйти</a></button>
             </div>
