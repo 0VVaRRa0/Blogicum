@@ -7,7 +7,7 @@ from django.views.generic import (
     CreateView, DeleteView, DetailView, ListView, UpdateView
 )
 
-from .models import Category, Post
+from .models import Category, Comment, Post
 
 POSTS = Post.objects.select_related('category', 'location', 'author')
 
@@ -35,6 +35,7 @@ class PostDetailView(DetailView):
         context['post'] = get_object_or_404(
             Post.objects.filter(is_published=True, id=self.kwargs['pk'])
         )
+        context['comments'] = Comment.objects.filter(post=self.kwargs['pk'])
         return context
 
 

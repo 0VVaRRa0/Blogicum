@@ -89,3 +89,26 @@ class Post(BaseModel):
             if len(self.title) > TITLE_DISPLAY_LIMIT
             else self.title
         )
+
+
+class Comment(models.Model):
+    author = models.ForeignKey(
+        User, verbose_name='Автор', on_delete=models.CASCADE
+    )
+    post = models.ForeignKey(
+        Post, verbose_name='Пост', on_delete=models.CASCADE
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    text = models.TextField('Текст комментария')
+
+    class Meta:
+        ordering = ['-created_at',]
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'Комментарии'
+
+    def __str__(self):
+        return (
+            self.text[:TITLE_DISPLAY_LIMIT] + '...'
+            if len(self.text) > TITLE_DISPLAY_LIMIT
+            else self.text
+        )

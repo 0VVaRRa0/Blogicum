@@ -23,12 +23,14 @@
       {{ comment.text|linebreaksbr }}
     </div>
     {% if user == comment.author %}
-      <a class="btn btn-sm text-muted" href="{% url 'blog:edit_comment' post.id comment.id %}" role="button">
+      <a class="btn btn-sm text-muted" href="" role="button">
         Отредактировать комментарий
       </a>
-      <a class="btn btn-sm text-muted" href="{% url 'blog:delete_comment' post.id comment.id %}" role="button">
+      {% comment %} {% url 'blog:edit_comment' post.id comment.id %} {% endcomment %}
+      <a class="btn btn-sm text-muted" href="" role="button">
         Удалить комментарий
       </a>
+      {% comment %} {% url 'blog:delete_comment' post.id comment.id %} {% endcomment %}
     {% endif %}
   </div>
 {% endfor %}
