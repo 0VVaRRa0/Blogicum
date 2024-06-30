@@ -7,9 +7,8 @@ from django.views.generic import (
     CreateView, DeleteView, DetailView, ListView, UpdateView
 )
 
+from .forms import CommentForm
 from .models import Category, Comment, Post
-
-POSTS = Post.objects.select_related('category', 'location', 'author')
 
 
 class HomepageListView(ListView):
@@ -36,6 +35,7 @@ class PostDetailView(DetailView):
             Post.objects.filter(is_published=True, id=self.kwargs['pk'])
         )
         context['comments'] = Comment.objects.filter(post=self.kwargs['pk'])
+        context['form'] = CommentForm
         return context
 
 
@@ -128,3 +128,23 @@ class PostDeleteView(OnlyAuthorMixin, DeleteView):
     model = Post
     template_name = "blog/create.html"
     success_url = reverse_lazy('blog:index')
+
+
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    post = None
+    model = Comment
+    form_class = CommentForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.post = get_object_or_404(Post, id=kwargs['post_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        form.instance.post = self.post
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'blog:post_detail', kwargs={'pk': self.post_id}
+        )
