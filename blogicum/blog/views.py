@@ -7,15 +7,16 @@ from django.views.generic import (
     CreateView, DeleteView, DetailView, ListView, UpdateView
 )
 
-from .models import Category, Post
+from .forms import CommentForm
+from .models import Category, Comment, Post
 
-POSTS = Post.objects.select_related('category', 'location', 'author')
+# Заменить slug_url_kwarg на pk_url_kwarg
 
 
 class HomepageListView(ListView):
     model = Post
-    template_name = "blog/index.html"
     paginate_by = 10
+    template_name = "blog/index.html"
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -28,20 +29,26 @@ class HomepageListView(ListView):
 
 class PostDetailView(DetailView):
     model = Post
+    slug_field = 'id'
+    slug_url_kwarg = 'post_id'
     template_name = 'blog/detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['post'] = get_object_or_404(
-            Post.objects.filter(is_published=True, id=self.kwargs['pk'])
+            Post.objects.filter(is_published=True, id=self.kwargs['post_id'])
         )
+        context['comments'] = Comment.objects.filter(
+            post=self.kwargs['post_id']
+        )
+        context['form'] = CommentForm
         return context
 
 
 class CategoryPostsListView(ListView):
     model = Post
-    template_name = 'blog/category.html'
     paginate_by = 10
+    template_name = 'blog/category.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -63,8 +70,8 @@ class CategoryPostsListView(ListView):
 
 class ProfileListView(ListView):
     model = Post
-    template_name = 'blog/profile.html'
     paginate_by = 10
+    template_name = 'blog/profile.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -84,9 +91,9 @@ class ProfileListView(ListView):
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
-    template_name = 'blog/create.html'
     fields = ('title', 'text', 'pub_date', 'category', 'location', 'image')
     success_url = reverse_lazy('blog:index')
+    template_name = 'blog/create.html'
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -107,23 +114,70 @@ class OnlyAuthorMixin(UserPassesTestMixin):
     def handle_no_permission(self):
         object = self.get_object()
         redirect_url = reverse_lazy(
-            'blog:post_detail', kwargs={'pk': object.pk}
+            'blog:post_detail', kwargs={'post_id': object.pk}
         )
         return redirect(redirect_url)
 
 
 class PostUpdateView(OnlyAuthorMixin, UpdateView):
     model = Post
-    template_name = 'blog/create.html'
     fields = ('title', 'text', 'pub_date', 'category', 'location', 'image')
+    slug_field = 'id'
+    slug_url_kwarg = 'post_id'
+    template_name = 'blog/create.html'
 
     def get_success_url(self):
         return reverse_lazy(
-            'blog:post_detail', kwargs={'pk': self.object.pk}
+            'blog:post_detail', kwargs={'post_id': self.object.pk}
         )
 
 
 class PostDeleteView(OnlyAuthorMixin, DeleteView):
     model = Post
-    template_name = "blog/create.html"
+    slug_field = 'id'
+    slug_url_kwarg = 'post_id'
     success_url = reverse_lazy('blog:index')
+    template_name = "blog/create.html"
+
+
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    form_class = CommentForm
+    model = Comment
+    post_obj = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.post_obj = get_object_or_404(Post, id=kwargs['post_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        form.instance.post = self.post_obj
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'blog:post_detail', kwargs={'post_id': self.object.post.pk}
+        )
+
+
+class CommentUpdateView(OnlyAuthorMixin, UpdateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment.html'
+    pk_url_kwarg = 'comment_id'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'blog:post_detail', kwargs={'post_id': self.object.post.id}
+        )
+
+
+class CommentDeleteView(OnlyAuthorMixin, DeleteView):
+    model = Comment
+    pk_url_kwarg = 'comment_id'
+    template_name = 'blog/comment.html'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'blog:post_detail', kwargs={'post_id': self.object.post.id}
+        )
