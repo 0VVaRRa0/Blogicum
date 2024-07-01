@@ -1,5 +1,5 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -9,6 +9,9 @@ from django.views.generic import (
 
 from .forms import CommentForm
 from .models import Category, Comment, Post
+
+
+USER = get_user_model()
 
 
 class HomepageListView(ListView):
@@ -73,7 +76,7 @@ class ProfileListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['profile'] = get_object_or_404(
-            User.objects.filter(username=self.kwargs['username'])
+            USER.objects.filter(username=self.kwargs['username'])
         )
         return context
 
@@ -83,6 +86,19 @@ class ProfileListView(ListView):
             category__is_published=True,
             is_published=True,
             pub_date__lte=timezone.now(),
+        )
+
+
+class ProfileUpdateView(UpdateView):
+    fields = ('first_name', 'last_name', 'username', 'email')
+    model = USER
+    slug_field = 'username'
+    slug_url_kwarg = 'username'
+    template_name = 'registration/registration_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'blog:profile', kwargs={'username': self.object.username}
         )
 
 
