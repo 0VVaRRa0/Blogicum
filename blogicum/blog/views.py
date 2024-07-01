@@ -10,6 +10,8 @@ from django.views.generic import (
 from .forms import CommentForm
 from .models import Category, Comment, Post
 
+# Заменить slug_url_kwarg на pk_url_kwarg
+
 
 class HomepageListView(ListView):
     model = Post
@@ -154,5 +156,28 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy(
-            'blog:post_detail', kwargs={'post_id': self.post_obj.pk}
+            'blog:post_detail', kwargs={'post_id': self.object.post.pk}
+        )
+
+
+class CommentUpdateView(OnlyAuthorMixin, UpdateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment.html'
+    pk_url_kwarg = 'comment_id'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'blog:post_detail', kwargs={'post_id': self.object.post.id}
+        )
+
+
+class CommentDeleteView(OnlyAuthorMixin, DeleteView):
+    model = Comment
+    pk_url_kwarg = 'comment_id'
+    template_name = 'blog/comment.html'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'blog:post_detail', kwargs={'post_id': self.object.post.id}
         )
