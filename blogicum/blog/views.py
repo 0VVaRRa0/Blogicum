@@ -10,8 +10,6 @@ from django.views.generic import (
 from .forms import CommentForm
 from .models import Category, Comment, Post
 
-# Заменить slug_url_kwarg на pk_url_kwarg
-
 
 class HomepageListView(ListView):
     model = Post
@@ -29,8 +27,7 @@ class HomepageListView(ListView):
 
 class PostDetailView(DetailView):
     model = Post
-    slug_field = 'id'
-    slug_url_kwarg = 'post_id'
+    pk_url_kwarg = 'post_id'
     template_name = 'blog/detail.html'
 
     def get_context_data(self, **kwargs):
@@ -122,8 +119,7 @@ class OnlyAuthorMixin(UserPassesTestMixin):
 class PostUpdateView(OnlyAuthorMixin, UpdateView):
     model = Post
     fields = ('title', 'text', 'pub_date', 'category', 'location', 'image')
-    slug_field = 'id'
-    slug_url_kwarg = 'post_id'
+    pk_url_kwarg = 'post_id'
     template_name = 'blog/create.html'
 
     def get_success_url(self):
@@ -134,8 +130,7 @@ class PostUpdateView(OnlyAuthorMixin, UpdateView):
 
 class PostDeleteView(OnlyAuthorMixin, DeleteView):
     model = Post
-    slug_field = 'id'
-    slug_url_kwarg = 'post_id'
+    pk_url_kwarg = 'post_id'
     success_url = reverse_lazy('blog:index')
     template_name = "blog/create.html"
 
