@@ -79,7 +79,6 @@ class Post(BaseModel):
     )
 
     class Meta:
-        ordering = ['-pub_date']
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
 
@@ -102,7 +101,6 @@ class Comment(models.Model):
     text = models.TextField('Текст комментария')
 
     class Meta:
-        ordering = ['-created_at',]
         verbose_name = 'комментарий'
         verbose_name_plural = 'Комментарии'
 
