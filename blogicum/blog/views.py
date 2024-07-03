@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Count
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import (
@@ -8,9 +9,20 @@ from django.views.generic import (
 )
 
 from .forms import CommentForm
+from .mixins import OnlyAuthorMixin
 from .models import Category, Comment, Post
 
 
+POSTS = (
+    Post.objects
+    .annotate(comment_count=Count('comment'))
+    .filter(
+        category__is_published=True,
+        is_published=True,
+        pub_date__lte=timezone.now()
+    )
+    .order_by('-pub_date')
+)
 USER = get_user_model()
 
 
@@ -18,31 +30,7 @@ class HomepageListView(ListView):
     model = Post
     paginate_by = 10
     template_name = "blog/index.html"
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        return qs.filter(
-            category__is_published=True,
-            is_published=True,
-            pub_date__lte=timezone.now(),
-        )
-
-
-class PostDetailView(DetailView):
-    model = Post
-    pk_url_kwarg = 'post_id'
-    template_name = 'blog/detail.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['post'] = get_object_or_404(
-            Post.objects.filter(is_published=True, id=self.kwargs['post_id'])
-        )
-        context['comments'] = Comment.objects.filter(
-            post=self.kwargs['post_id']
-        )
-        context['form'] = CommentForm
-        return context
+    queryset = POSTS
 
 
 class CategoryPostsListView(ListView):
@@ -53,18 +41,16 @@ class CategoryPostsListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['category'] = get_object_or_404(
-            Category.objects.filter(
-                slug=self.kwargs['category_slug'], is_published=True
-            )
+            Category, is_published=True,
+            slug=self.kwargs['category_slug']
         )
         return context
 
     def get_queryset(self):
-        qs = super().get_queryset()
-        return qs.filter(
-            category__slug=self.kwargs['category_slug'],
-            is_published=True,
-            pub_date__lte=timezone.now(),
+        return (
+            POSTS.filter(
+                category__slug=self.kwargs['category_slug']
+            )
         )
 
 
@@ -81,11 +67,10 @@ class ProfileListView(ListView):
         return context
 
     def get_queryset(self):
-        return Post.objects.filter(
-            author__username=self.kwargs.get('username'),
-            category__is_published=True,
-            is_published=True,
-            pub_date__lte=timezone.now(),
+        return (
+            POSTS.filter(
+                author__username=self.kwargs['username']
+            )
         )
 
 
@@ -98,8 +83,25 @@ class ProfileUpdateView(UpdateView):
 
     def get_success_url(self):
         return reverse_lazy(
-            'blog:profile', kwargs={'username': self.object.username}
+            'blog:profile', kwargs={'username': self.kwargs['username']}
         )
+
+
+class PostDetailView(DetailView):
+    model = Post
+    pk_url_kwarg = 'post_id'
+    template_name = 'blog/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['post'] = get_object_or_404(
+            Post, is_published=True, id=self.kwargs['post_id']
+        )
+        context['comments'] = Comment.objects.filter(
+            post=self.kwargs['post_id']
+        )
+        context['form'] = CommentForm
+        return context
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -116,20 +118,6 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return reverse_lazy(
             'blog:profile', kwargs={'username': self.request.user.username}
         )
-
-
-class OnlyAuthorMixin(UserPassesTestMixin):
-
-    def test_func(self):
-        object = self.get_object()
-        return object.author == self.request.user
-
-    def handle_no_permission(self):
-        object = self.get_object()
-        redirect_url = reverse_lazy(
-            'blog:post_detail', kwargs={'post_id': object.pk}
-        )
-        return redirect(redirect_url)
 
 
 class PostUpdateView(OnlyAuthorMixin, UpdateView):
