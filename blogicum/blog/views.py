@@ -140,7 +140,7 @@ class PostDeleteView(OnlyAuthorMixin, DeleteView):
 
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
-    form_class = CommentForm
+    fields = ('text',)
     model = Comment
     post_obj = None
 
@@ -161,7 +161,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
 class CommentUpdateView(OnlyAuthorMixin, UpdateView):
     model = Comment
-    form_class = CommentForm
+    fields = ('text',)
     template_name = 'blog/comment.html'
     pk_url_kwarg = 'comment_id'
 
