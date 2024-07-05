@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -9,31 +8,20 @@ from django.views.generic import (
 )
 
 from .forms import CommentForm
-from .mixins import OnlyAuthorMixin
+from .mixins import OnlyAuthorMixin, OnlyProfileOwnerMixin, PostsQuerySet
 from .models import Category, Comment, Post
 
 
-POSTS = (
-    Post.objects
-    .annotate(comment_count=Count('comment'))
-    .filter(
-        category__is_published=True,
-        is_published=True,
-        pub_date__lte=timezone.now()
-    )
-    .order_by('-pub_date')
-)
 USER = get_user_model()
 
 
-class HomepageListView(ListView):
+class HomepageListView(PostsQuerySet, ListView):
     model = Post
     paginate_by = 10
     template_name = "blog/index.html"
-    queryset = POSTS
 
 
-class CategoryPostsListView(ListView):
+class CategoryPostsListView(PostsQuerySet, ListView):
     model = Post
     paginate_by = 10
     template_name = 'blog/category.html'
@@ -47,14 +35,11 @@ class CategoryPostsListView(ListView):
         return context
 
     def get_queryset(self):
-        return (
-            POSTS.filter(
-                category__slug=self.kwargs['category_slug']
-            )
-        )
+        qs = super().get_queryset()
+        return qs.filter(category__slug=self.kwargs['category_slug'])
 
 
-class ProfileListView(ListView):
+class ProfileListView(PostsQuerySet, ListView):
     model = Post
     paginate_by = 10
     template_name = 'blog/profile.html'
@@ -62,19 +47,20 @@ class ProfileListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['profile'] = get_object_or_404(
-            USER.objects.filter(username=self.kwargs['username'])
+            USER, username=self.kwargs['username']
         )
         return context
 
     def get_queryset(self):
-        return (
-            POSTS.filter(
-                author__username=self.kwargs['username']
-            )
-        )
+        user = self.request.user
+        qs = super().get_queryset()
+        if user.username == self.kwargs['username']:
+            return Post.objects.filter(author=user).order_by('-pub_date')
+        else:
+            return qs.filter(author__username=self.kwargs['username'])
 
 
-class ProfileUpdateView(UpdateView):
+class ProfileUpdateView(OnlyProfileOwnerMixin, UpdateView):
     fields = ('first_name', 'last_name', 'username', 'email')
     model = USER
     slug_field = 'username'
@@ -93,14 +79,21 @@ class PostDetailView(DetailView):
     template_name = 'blog/detail.html'
 
     def get_context_data(self, **kwargs):
+        user = self.request.user
         context = super().get_context_data(**kwargs)
-        context['post'] = get_object_or_404(
-            Post, is_published=True, id=self.kwargs['post_id']
-        )
+        if user == Post.objects.get(id=self.kwargs['post_id']).author:
+            context['post'] = get_object_or_404(
+                Post, id=self.kwargs['post_id']
+            )
+        else:
+            context['post'] = get_object_or_404(
+                Post, id=self.kwargs['post_id'], pub_date__lte=timezone.now(),
+                is_published=True, category__is_published=True
+            )
         context['comments'] = Comment.objects.filter(
             post=self.kwargs['post_id']
         )
-        context['form'] = CommentForm
+        context['form'] = CommentForm()
         return context
 
 
