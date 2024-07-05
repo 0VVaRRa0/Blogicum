@@ -29,8 +29,8 @@ class CategoryPostsListView(PostsQuerySet, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['category'] = get_object_or_404(
-            Category, is_published=True,
-            slug=self.kwargs['category_slug']
+            Category.objects.only('is_published', 'slug'),
+            is_published=True, slug=self.kwargs['category_slug']
         )
         return context
 
@@ -47,7 +47,8 @@ class ProfileListView(PostsQuerySet, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['profile'] = get_object_or_404(
-            USER, username=self.kwargs['username']
+            USER.objects.only('username'),
+            username=self.kwargs['username']
         )
         return context
 

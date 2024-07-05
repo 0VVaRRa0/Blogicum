@@ -19,6 +19,7 @@ class PostsQuerySet:
                 pub_date__lte=timezone.localtime()
             )
             .order_by('-pub_date')
+            .select_related('author', 'category')
         )
 
 
