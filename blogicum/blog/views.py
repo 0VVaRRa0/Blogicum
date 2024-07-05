@@ -67,11 +67,15 @@ class ProfileListView(ListView):
         return context
 
     def get_queryset(self):
-        return (
-            POSTS.filter(
-                author__username=self.kwargs['username']
+        user = self.request.user
+        if user.username == self.kwargs['username']:
+            return Post.objects.filter(author=user).order_by('-pub_date')
+        else:
+            return (
+                POSTS.filter(
+                    author__username=self.kwargs['username']
+                )
             )
-        )
 
 
 class ProfileUpdateView(UpdateView):
