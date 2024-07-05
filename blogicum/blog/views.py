@@ -93,7 +93,7 @@ class PostDetailView(DetailView):
         context['comments'] = Comment.objects.filter(
             post=self.kwargs['post_id']
         )
-        context['form'] = CommentForm
+        context['form'] = CommentForm()
         return context
 
 
