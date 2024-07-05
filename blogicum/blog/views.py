@@ -19,7 +19,7 @@ POSTS = (
     .filter(
         category__is_published=True,
         is_published=True,
-        pub_date__lte=timezone.now()
+        pub_date__lte=timezone.localtime()
     )
     .order_by('-pub_date')
 )
