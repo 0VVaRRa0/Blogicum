@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -9,31 +8,20 @@ from django.views.generic import (
 )
 
 from .forms import CommentForm
-from .mixins import OnlyAuthorMixin, OnlyProfileOwnerMixin
+from .mixins import OnlyAuthorMixin, OnlyProfileOwnerMixin, PostsQuerySet
 from .models import Category, Comment, Post
 
 
-POSTS = (  # Миксин вместо константы
-    Post.objects
-    .annotate(comment_count=Count('comment'))
-    .filter(
-        category__is_published=True,
-        is_published=True,
-        pub_date__lte=timezone.localtime()
-    )
-    .order_by('-pub_date')
-)
 USER = get_user_model()
 
 
-class HomepageListView(ListView):
+class HomepageListView(PostsQuerySet, ListView):
     model = Post
     paginate_by = 10
     template_name = "blog/index.html"
-    queryset = POSTS
 
 
-class CategoryPostsListView(ListView):
+class CategoryPostsListView(PostsQuerySet, ListView):
     model = Post
     paginate_by = 10
     template_name = 'blog/category.html'
@@ -47,14 +35,11 @@ class CategoryPostsListView(ListView):
         return context
 
     def get_queryset(self):
-        return (
-            POSTS.filter(
-                category__slug=self.kwargs['category_slug']
-            )
-        )
+        qs = super().get_queryset()
+        return qs.filter(category__slug=self.kwargs['category_slug'])
 
 
-class ProfileListView(ListView):
+class ProfileListView(PostsQuerySet, ListView):
     model = Post
     paginate_by = 10
     template_name = 'blog/profile.html'
@@ -68,14 +53,11 @@ class ProfileListView(ListView):
 
     def get_queryset(self):
         user = self.request.user
+        qs = super().get_queryset()
         if user.username == self.kwargs['username']:
             return Post.objects.filter(author=user).order_by('-pub_date')
         else:
-            return (
-                POSTS.filter(
-                    author__username=self.kwargs['username']
-                )
-            )
+            return qs.filter(author__username=self.kwargs['username'])
 
 
 class ProfileUpdateView(OnlyProfileOwnerMixin, UpdateView):
