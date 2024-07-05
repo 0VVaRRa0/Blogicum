@@ -97,10 +97,17 @@ class PostDetailView(DetailView):
     template_name = 'blog/detail.html'
 
     def get_context_data(self, **kwargs):
+        user = self.request.user
         context = super().get_context_data(**kwargs)
-        context['post'] = get_object_or_404(
-            Post, is_published=True, id=self.kwargs['post_id']
-        )
+        if user == Post.objects.get(id=self.kwargs['post_id']).author:
+            context['post'] = get_object_or_404(
+                Post, id=self.kwargs['post_id']
+            )
+        else:
+            context['post'] = get_object_or_404(
+                Post, id=self.kwargs['post_id'], pub_date__lte=timezone.now(),
+                is_published=True, category__is_published=True
+            )
         context['comments'] = Comment.objects.filter(
             post=self.kwargs['post_id']
         )
