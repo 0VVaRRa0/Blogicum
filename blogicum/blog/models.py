@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
 
-from core.models import BaseModel
+from core.models import PublishableTimestampedModel
 
 
 User = get_user_model()
@@ -11,7 +11,7 @@ MAX_TITLE_LENGTH = 256
 TITLE_DISPLAY_LIMIT = 10
 
 
-class Category(BaseModel):
+class Category(PublishableTimestampedModel):
     title = models.CharField(
         max_length=MAX_TITLE_LENGTH, verbose_name='Заголовок'
     )
@@ -35,7 +35,7 @@ class Category(BaseModel):
         )
 
 
-class Location(BaseModel):
+class Location(PublishableTimestampedModel):
     name = models.CharField(
         max_length=MAX_TITLE_LENGTH, verbose_name='Название места'
     )
@@ -52,7 +52,7 @@ class Location(BaseModel):
         )
 
 
-class Post(BaseModel):
+class Post(PublishableTimestampedModel):
     title = models.CharField(
         max_length=MAX_TITLE_LENGTH, verbose_name='Заголовок'
     )
