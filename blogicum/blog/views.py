@@ -13,7 +13,7 @@ from .mixins import OnlyAuthorMixin, OnlyProfileOwnerMixin
 from .models import Category, Comment, Post
 
 
-POSTS = (
+POSTS = (  # Миксин вместо константы
     Post.objects
     .annotate(comment_count=Count('comment'))
     .filter(
@@ -62,7 +62,7 @@ class ProfileListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['profile'] = get_object_or_404(
-            USER.objects.filter(username=self.kwargs['username'])
+            USER, username=self.kwargs['username']
         )
         return context
 
