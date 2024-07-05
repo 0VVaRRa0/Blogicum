@@ -9,7 +9,7 @@ from django.views.generic import (
 )
 
 from .forms import CommentForm
-from .mixins import OnlyAuthorMixin
+from .mixins import OnlyAuthorMixin, OnlyProfileOwnerMixin
 from .models import Category, Comment, Post
 
 
@@ -78,7 +78,7 @@ class ProfileListView(ListView):
             )
 
 
-class ProfileUpdateView(UpdateView):
+class ProfileUpdateView(OnlyProfileOwnerMixin, UpdateView):
     fields = ('first_name', 'last_name', 'username', 'email')
     model = USER
     slug_field = 'username'
