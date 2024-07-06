@@ -84,6 +84,7 @@ class Post(PublishableTimestampedModel):
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
         default_related_name = 'posts'
+        ordering = ['-pub_date']
 
     def __str__(self):
         return Truncator(self.title).chars(TITLE_DISPLAY_LIMIT)
@@ -107,6 +108,7 @@ class Comment(models.Model):
         verbose_name = 'комментарий'
         verbose_name_plural = 'Комментарии'
         default_related_name = 'comments'
+        ordering = ['created_at']
 
     def __str__(self):
         return Truncator(self.text).chars(TITLE_DISPLAY_LIMIT)
