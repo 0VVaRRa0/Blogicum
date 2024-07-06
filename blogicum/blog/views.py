@@ -95,17 +95,20 @@ class PostDetailView(DetailView):
         user = self.request.user
         context = super().get_context_data(**kwargs)
         if user == Post.objects.get(id=self.kwargs['post_id']).author:
-            context['post'] = get_object_or_404(
-                Post, id=self.kwargs['post_id']
+            post_obj = get_object_or_404(
+                Post,
+                id=self.kwargs['post_id']
             )
         else:
-            context['post'] = get_object_or_404(
-                Post, id=self.kwargs['post_id'], pub_date__lte=timezone.now(),
-                is_published=True, category__is_published=True
+            post_obj = get_object_or_404(
+                Post,
+                id=self.kwargs['post_id'],
+                pub_date__lte=timezone.now(),
+                is_published=True,
+                category__is_published=True
             )
-        context['comments'] = Comment.objects.filter(
-            post=self.kwargs['post_id']
-        )
+        context['post'] = post_obj
+        context['comments'] = post_obj.comments.all()
         context['form'] = CommentForm()
         return context
 
@@ -113,7 +116,6 @@ class PostDetailView(DetailView):
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     fields = ('title', 'text', 'pub_date', 'category', 'location', 'image')
-    success_url = reverse_lazy('blog:index')
     template_name = 'blog/create.html'
 
     def form_valid(self, form):
@@ -121,24 +123,24 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy(
+        return reverse(
             'blog:profile', kwargs={'username': self.request.user.username}
         )
 
 
-class PostUpdateView(OnlyAuthorMixin, UpdateView):
+class PostUpdateView(LoginRequiredMixin, OnlyAuthorMixin, UpdateView):
     model = Post
     fields = ('title', 'text', 'pub_date', 'category', 'location', 'image')
     pk_url_kwarg = 'post_id'
     template_name = 'blog/create.html'
 
     def get_success_url(self):
-        return reverse_lazy(
+        return reverse(
             'blog:post_detail', kwargs={'post_id': self.object.pk}
         )
 
 
-class PostDeleteView(OnlyAuthorMixin, DeleteView):
+class PostDeleteView(LoginRequiredMixin, OnlyAuthorMixin, DeleteView):
     model = Post
     pk_url_kwarg = 'post_id'
     success_url = reverse_lazy('blog:index')
