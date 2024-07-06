@@ -9,11 +9,13 @@ from core.models import PublishableTimestampedModel
 
 class Category(PublishableTimestampedModel):
     title = models.CharField(
-        max_length=MAX_TITLE_LENGTH, verbose_name='Заголовок'
+        max_length=MAX_TITLE_LENGTH,
+        verbose_name='Заголовок'
     )
     description = models.TextField(verbose_name='Описание')
     slug = models.SlugField(
-        unique=True, verbose_name='Идентификатор',
+        unique=True,
+        verbose_name='Идентификатор',
         help_text=('Идентификатор страницы для URL; '
                    'разрешены символы латиницы, цифры, '
                    'дефис и подчёркивание.')
@@ -33,7 +35,8 @@ class Category(PublishableTimestampedModel):
 
 class Location(PublishableTimestampedModel):
     name = models.CharField(
-        max_length=MAX_TITLE_LENGTH, verbose_name='Название места'
+        max_length=MAX_TITLE_LENGTH,
+        verbose_name='Название места'
     )
 
     class Meta:
@@ -50,7 +53,8 @@ class Location(PublishableTimestampedModel):
 
 class Post(PublishableTimestampedModel):
     title = models.CharField(
-        max_length=MAX_TITLE_LENGTH, verbose_name='Заголовок'
+        max_length=MAX_TITLE_LENGTH,
+        verbose_name='Заголовок'
     )
     text = models.TextField(verbose_name='Текст')
     pub_date = models.DateTimeField(
@@ -60,18 +64,27 @@ class Post(PublishableTimestampedModel):
                    '— можно делать отложенные публикации.')
     )
     author = models.ForeignKey(
-        USER, verbose_name='Автор публикации', on_delete=models.CASCADE
+        USER,
+        verbose_name='Автор публикации',
+        on_delete=models.CASCADE
     )
     location = models.ForeignKey(
-        Location, verbose_name='Местоположение',
-        on_delete=models.SET_NULL, blank=True, null=True
+        Location,
+        verbose_name='Местоположение',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
     )
     category = models.ForeignKey(
-        Category, verbose_name='Категория',
-        on_delete=models.SET_NULL, null=True
+        Category,
+        verbose_name='Категория',
+        on_delete=models.SET_NULL,
+        null=True
     )
     image = models.ImageField(
-        'Изображение', upload_to='blog_images', blank=True
+        'Изображение',
+        upload_to='blog_images',
+        blank=True
     )
 
     class Meta:
@@ -88,10 +101,14 @@ class Post(PublishableTimestampedModel):
 
 class Comment(models.Model):
     author = models.ForeignKey(
-        USER, verbose_name='Автор', on_delete=models.CASCADE
+        USER,
+        verbose_name='Автор',
+        on_delete=models.CASCADE
     )
     post = models.ForeignKey(
-        Post, verbose_name='Пост', on_delete=models.CASCADE
+        Post,
+        verbose_name='Пост',
+        on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(auto_now_add=True)
     text = models.TextField('Текст комментария')
