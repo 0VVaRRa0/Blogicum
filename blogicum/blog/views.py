@@ -24,6 +24,14 @@ class CategoryPostsListView(PostsQuerySetMixin, ListView):
     paginate_by = POSTS_PER_PAGE
     template_name = 'blog/category.html'
 
+    def get_queryset(self):
+        category_obj = get_object_or_404(
+            Category,
+            slug=self.kwargs['category_slug']
+        )
+        qs = super().get_queryset()
+        return qs.filter(category__id=category_obj.id)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['category'] = get_object_or_404(
@@ -31,10 +39,6 @@ class CategoryPostsListView(PostsQuerySetMixin, ListView):
             is_published=True, slug=self.kwargs['category_slug']
         )
         return context
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        return qs.filter(category__slug=self.kwargs['category_slug'])
 
 
 class ProfileListView(PostsQuerySetMixin, ListView):
