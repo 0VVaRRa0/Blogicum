@@ -7,7 +7,7 @@ from django.views.generic import (
     CreateView, DeleteView, DetailView, ListView, UpdateView
 )
 
-from .constants import USER
+from .constants import POSTS_PER_PAGE, USER
 from .forms import CommentForm
 from .mixins import OnlyAuthorMixin, PostsQuerySetMixin
 from .models import Category, Comment, Post
@@ -15,13 +15,13 @@ from .models import Category, Comment, Post
 
 class HomepageListView(PostsQuerySetMixin, ListView):
     model = Post
-    paginate_by = 10
+    paginate_by = POSTS_PER_PAGE
     template_name = "blog/index.html"
 
 
 class CategoryPostsListView(PostsQuerySetMixin, ListView):
     model = Post
-    paginate_by = 10
+    paginate_by = POSTS_PER_PAGE
     template_name = 'blog/category.html'
 
     def get_context_data(self, **kwargs):
@@ -39,7 +39,7 @@ class CategoryPostsListView(PostsQuerySetMixin, ListView):
 
 class ProfileListView(PostsQuerySetMixin, ListView):
     model = Post
-    paginate_by = 10
+    paginate_by = POSTS_PER_PAGE
     template_name = 'blog/profile.html'
 
     def get_context_data(self, **kwargs):
