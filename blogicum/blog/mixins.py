@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models import Count
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import Truncator
 
@@ -47,3 +48,11 @@ class AdminZoneShortNamesMixin:
     def short_name(self, obj):
         return Truncator(obj.name).chars(TITLE_DISPLAY_LIMIT)
     short_name.short_description = 'Название'
+
+
+class CommentSuccessUrlMixin:
+
+    def get_success_url(self):
+        return reverse(
+            'blog:post_detail', kwargs={'post_id': self.object.post.id}
+        )

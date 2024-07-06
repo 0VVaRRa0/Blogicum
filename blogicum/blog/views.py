@@ -1,15 +1,23 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import (
-    CreateView, DeleteView, DetailView, ListView, UpdateView
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView
 )
 
 from .constants import POSTS_PER_PAGE, USER
 from .forms import CommentForm, PostForm
-from .mixins import OnlyAuthorMixin, PostsQuerySetMixin
+from .mixins import (
+    CommentSuccessUrlMixin,
+    OnlyAuthorMixin,
+    PostsQuerySetMixin
+)
 from .models import Category, Comment, Post
 
 
@@ -143,7 +151,6 @@ class PostUpdateView(LoginRequiredMixin, OnlyAuthorMixin, UpdateView):
 class PostDeleteView(LoginRequiredMixin, OnlyAuthorMixin, DeleteView):
     model = Post
     pk_url_kwarg = 'post_id'
-    success_url = reverse_lazy('blog:index')
     template_name = "blog/create.html"
 
     def get_context_data(self, **kwargs):
@@ -151,8 +158,15 @@ class PostDeleteView(LoginRequiredMixin, OnlyAuthorMixin, DeleteView):
         context['form'] = PostForm()
         return context
 
+    def get_success_url(self):
+        return reverse('blog:index')
 
-class CommentCreateView(LoginRequiredMixin, CreateView):
+
+class CommentCreateView(
+    CommentSuccessUrlMixin,
+    LoginRequiredMixin,
+    CreateView
+):
     form_class = CommentForm
     model = Comment
 
@@ -164,30 +178,25 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         )
         return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse(
-            'blog:post_detail', kwargs={'post_id': self.object.post.pk}
-        )
 
-
-class CommentUpdateView(LoginRequiredMixin, OnlyAuthorMixin, UpdateView):
+class CommentUpdateView(
+    CommentSuccessUrlMixin,
+    LoginRequiredMixin,
+    OnlyAuthorMixin,
+    UpdateView
+):
     model = Comment
     form_class = CommentForm
     template_name = 'blog/comment.html'
     pk_url_kwarg = 'comment_id'
 
-    def get_success_url(self):
-        return reverse(
-            'blog:post_detail', kwargs={'post_id': self.object.post.id}
-        )
 
-
-class CommentDeleteView(LoginRequiredMixin, OnlyAuthorMixin, DeleteView):
+class CommentDeleteView(
+    CommentSuccessUrlMixin,
+    LoginRequiredMixin,
+    OnlyAuthorMixin,
+    DeleteView
+):
     model = Comment
     pk_url_kwarg = 'comment_id'
     template_name = 'blog/comment.html'
-
-    def get_success_url(self):
-        return reverse(
-            'blog:post_detail', kwargs={'post_id': self.object.post.id}
-        )
