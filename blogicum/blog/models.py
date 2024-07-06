@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils import timezone
-from django.utils.text import Truncator
 
 from .constants import (
     MAX_TITLE_LENGTH, TITLE_DISPLAY_LIMIT, USER
