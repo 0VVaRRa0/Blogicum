@@ -1,13 +1,12 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models import Count
 from django.shortcuts import redirect
-from django.urls import reverse
 from django.utils import timezone
 
 from .models import Post
 
 
-class PostsQuerySet:
+class PostsQuerySetMixin:
 
     def get_queryset(self):
         return (
@@ -19,7 +18,7 @@ class PostsQuerySet:
                 pub_date__lte=timezone.localtime()
             )
             .order_by('-pub_date')
-            .select_related('author', 'category')
+            .select_related('author', 'category', 'location')
         )
 
 
@@ -30,11 +29,7 @@ class OnlyAuthorMixin(UserPassesTestMixin):
         return object.author == self.request.user
 
     def handle_no_permission(self):
-        return redirect(
-            reverse(
-                'blog:post_detail', kwargs={'post_id': self.kwargs['post_id']}
-            )
-        )
+        return redirect('blog:post_detail', post_id=self.kwargs['post_id'])
 
 
 class OnlyProfileOwnerMixin(UserPassesTestMixin):
@@ -44,8 +39,4 @@ class OnlyProfileOwnerMixin(UserPassesTestMixin):
         return user == self.kwargs['username']
 
     def handle_no_permission(self):
-        return redirect(
-            reverse(
-                'blog:profile', kwargs={'username': self.kwargs['username']}
-            )
-        )
+        return redirect('blog:profile', username=self.kwargs['username'])

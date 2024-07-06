@@ -8,20 +8,20 @@ from django.views.generic import (
 )
 
 from .forms import CommentForm
-from .mixins import OnlyAuthorMixin, OnlyProfileOwnerMixin, PostsQuerySet
+from .mixins import OnlyAuthorMixin, OnlyProfileOwnerMixin, PostsQuerySetMixin
 from .models import Category, Comment, Post
 
 
 USER = get_user_model()
 
 
-class HomepageListView(PostsQuerySet, ListView):
+class HomepageListView(PostsQuerySetMixin, ListView):
     model = Post
     paginate_by = 10
     template_name = "blog/index.html"
 
 
-class CategoryPostsListView(PostsQuerySet, ListView):
+class CategoryPostsListView(PostsQuerySetMixin, ListView):
     model = Post
     paginate_by = 10
     template_name = 'blog/category.html'
@@ -39,7 +39,7 @@ class CategoryPostsListView(PostsQuerySet, ListView):
         return qs.filter(category__slug=self.kwargs['category_slug'])
 
 
-class ProfileListView(PostsQuerySet, ListView):
+class ProfileListView(PostsQuerySetMixin, ListView):
     model = Post
     paginate_by = 10
     template_name = 'blog/profile.html'
