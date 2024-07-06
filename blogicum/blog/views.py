@@ -8,7 +8,7 @@ from django.views.generic import (
 )
 
 from .constants import POSTS_PER_PAGE, USER
-from .forms import CommentForm
+from .forms import CommentForm, PostForm
 from .mixins import OnlyAuthorMixin, PostsQuerySetMixin
 from .models import Category, Comment, Post
 
@@ -115,7 +115,7 @@ class PostDetailView(DetailView):
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ('title', 'text', 'pub_date', 'category', 'location', 'image')
+    form_class = PostForm
     template_name = 'blog/create.html'
 
     def form_valid(self, form):
@@ -130,7 +130,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
 class PostUpdateView(LoginRequiredMixin, OnlyAuthorMixin, UpdateView):
     model = Post
-    fields = ('title', 'text', 'pub_date', 'category', 'location', 'image')
+    form_class = PostForm
     pk_url_kwarg = 'post_id'
     template_name = 'blog/create.html'
 
@@ -145,6 +145,11 @@ class PostDeleteView(LoginRequiredMixin, OnlyAuthorMixin, DeleteView):
     pk_url_kwarg = 'post_id'
     success_url = reverse_lazy('blog:index')
     template_name = "blog/create.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = PostForm()
+        return context
 
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
