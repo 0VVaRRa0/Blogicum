@@ -30,7 +30,7 @@ class CategoryPostsListView(PostsQuerySetMixin, ListView):
             slug=self.kwargs['category_slug']
         )
         qs = super().get_queryset()
-        return qs.filter(category__id=category_obj.id)
+        return qs.filter(category=category_obj)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -49,29 +49,33 @@ class ProfileListView(PostsQuerySetMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['profile'] = get_object_or_404(
-            USER.objects.only('username'),
+            USER,
             username=self.kwargs['username']
         )
         return context
 
     def get_queryset(self):
-        user = self.request.user
-        qs = super().get_queryset()
-        if user.username == self.kwargs['username']:
+        user_obj = get_object_or_404(
+            USER,
+            username=self.kwargs['username']
+        )
+        if user_obj == self.request.user:
             return (
                 Post.objects
                 .annotate(comment_count=Count('comments'))
-                .filter(author=user)
+                .filter(author=user_obj)
                 .order_by('-pub_date')
+                .select_related('category', 'location')
             )
         else:
-            return qs.filter(author__username=self.kwargs['username'])
+            qs = super().get_queryset()
+            return qs.filter(author=user_obj)
 
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     fields = ('first_name', 'last_name', 'username', 'email')
     model = USER
-    template_name = 'registration/registration_form.html'
+    template_name = 'blog/user.html'
 
     def get_success_url(self):
         return reverse_lazy(
