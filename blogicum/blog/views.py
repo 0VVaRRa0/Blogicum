@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
@@ -7,12 +6,10 @@ from django.views.generic import (
     CreateView, DeleteView, DetailView, ListView, UpdateView
 )
 
+from .constants import USER
 from .forms import CommentForm
 from .mixins import OnlyAuthorMixin, OnlyProfileOwnerMixin, PostsQuerySetMixin
 from .models import Category, Comment, Post
-
-
-USER = get_user_model()
 
 
 class HomepageListView(PostsQuerySetMixin, ListView):

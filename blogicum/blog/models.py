@@ -1,14 +1,11 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
+from django.utils.text import Truncator
 
+from .constants import (
+    MAX_TITLE_LENGTH, TITLE_DISPLAY_LIMIT, USER
+)
 from core.models import PublishableTimestampedModel
-
-
-User = get_user_model()
-
-MAX_TITLE_LENGTH = 256
-TITLE_DISPLAY_LIMIT = 10
 
 
 class Category(PublishableTimestampedModel):
@@ -64,7 +61,7 @@ class Post(PublishableTimestampedModel):
                    '— можно делать отложенные публикации.')
     )
     author = models.ForeignKey(
-        User, verbose_name='Автор публикации', on_delete=models.CASCADE
+        USER, verbose_name='Автор публикации', on_delete=models.CASCADE
     )
     location = models.ForeignKey(
         Location, verbose_name='Местоположение',
@@ -92,7 +89,7 @@ class Post(PublishableTimestampedModel):
 
 class Comment(models.Model):
     author = models.ForeignKey(
-        User, verbose_name='Автор', on_delete=models.CASCADE
+        USER, verbose_name='Автор', on_delete=models.CASCADE
     )
     post = models.ForeignKey(
         Post, verbose_name='Пост', on_delete=models.CASCADE
