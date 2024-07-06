@@ -39,11 +39,11 @@ urlpatterns = [
         views.CategoryPostsListView.as_view(), name='category_posts'
     ),
     path(
-        'profile/<slug:username>/',
-        views.ProfileListView.as_view(), name='profile'
+        'profile/edit_profile/',
+        views.ProfileUpdateView.as_view(), name='edit_profile'
     ),
     path(
-        'profile/<slug:username>/edit_profile/',
-        views.ProfileUpdateView.as_view(), name='edit_profile'
+        'profile/<str:username>/',
+        views.ProfileListView.as_view(), name='profile'
     ),
 ]

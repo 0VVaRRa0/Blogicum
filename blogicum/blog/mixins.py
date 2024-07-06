@@ -34,16 +34,6 @@ class OnlyAuthorMixin(UserPassesTestMixin):
         return redirect('blog:post_detail', post_id=self.kwargs['post_id'])
 
 
-class OnlyProfileOwnerMixin(UserPassesTestMixin):
-
-    def test_func(self):
-        user = self.request.user.username
-        return user == self.kwargs['username']
-
-    def handle_no_permission(self):
-        return redirect('blog:profile', username=self.kwargs['username'])
-
-
 class AdminZoneShortNamesMixin:
 
     def short_title(self, obj):

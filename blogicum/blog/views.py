@@ -9,7 +9,7 @@ from django.views.generic import (
 
 from .constants import USER
 from .forms import CommentForm
-from .mixins import OnlyAuthorMixin, OnlyProfileOwnerMixin, PostsQuerySetMixin
+from .mixins import OnlyAuthorMixin, PostsQuerySetMixin
 from .models import Category, Comment, Post
 
 
@@ -64,17 +64,18 @@ class ProfileListView(PostsQuerySetMixin, ListView):
             return qs.filter(author__username=self.kwargs['username'])
 
 
-class ProfileUpdateView(OnlyProfileOwnerMixin, UpdateView):
+class ProfileUpdateView(UpdateView):
     fields = ('first_name', 'last_name', 'username', 'email')
     model = USER
-    slug_field = 'username'
-    slug_url_kwarg = 'username'
     template_name = 'registration/registration_form.html'
 
     def get_success_url(self):
         return reverse_lazy(
-            'blog:profile', kwargs={'username': self.kwargs['username']}
+            'blog:profile', kwargs={'username': self.object.username}
         )
+
+    def get_object(self):
+        return self.request.user
 
 
 class PostDetailView(DetailView):
