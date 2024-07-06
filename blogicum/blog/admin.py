@@ -1,28 +1,29 @@
 from django.contrib import admin
 
+from .mixins import AdminZoneShortNamesMixin
 from .models import Category, Comment, Location, Post
 
 
 @admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('title', 'is_published', 'slug')
+class CategoryAdmin(AdminZoneShortNamesMixin, admin.ModelAdmin):
+    list_display = ('short_title', 'is_published', 'slug')
     list_editable = ('is_published',)
 
 
 @admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
-    list_display = ('author', 'created_at', 'post', 'text')
+class CommentAdmin(AdminZoneShortNamesMixin, admin.ModelAdmin):
+    list_display = ('author', 'post', 'short_text')
     search_fields = ('post',)
 
 
 @admin.register(Location)
-class LocationAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+class LocationAdmin(AdminZoneShortNamesMixin, admin.ModelAdmin):
+    list_display = ('short_name',)
 
 
 @admin.register(Post)
-class PostAdmin(admin.ModelAdmin):
-    list_filter = ('category',)
-    list_display = ('title', 'is_published', 'category')
+class PostAdmin(AdminZoneShortNamesMixin, admin.ModelAdmin):
+    list_display = ('short_title', 'is_published', 'category')
     list_editable = ('is_published', 'category')
+    list_filter = ('category',)
     search_fields = ('title',)

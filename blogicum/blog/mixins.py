@@ -2,7 +2,9 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models import Count
 from django.shortcuts import redirect
 from django.utils import timezone
+from django.utils.text import Truncator
 
+from .constants import TITLE_DISPLAY_LIMIT
 from .models import Post
 
 
@@ -40,3 +42,18 @@ class OnlyProfileOwnerMixin(UserPassesTestMixin):
 
     def handle_no_permission(self):
         return redirect('blog:profile', username=self.kwargs['username'])
+
+
+class AdminZoneShortNamesMixin:
+
+    def short_title(self, obj):
+        return Truncator(obj.title).chars(TITLE_DISPLAY_LIMIT)
+    short_title.short_description = 'Заголовок'
+
+    def short_text(self, obj):
+        return Truncator(obj.text).chars(TITLE_DISPLAY_LIMIT)
+    short_text.short_description = 'Текст'
+
+    def short_name(self, obj):
+        return Truncator(obj.name).chars(TITLE_DISPLAY_LIMIT)
+    short_name.short_description = 'Название'

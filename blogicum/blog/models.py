@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.utils.text import Truncator
 
 from .constants import (
     MAX_TITLE_LENGTH, TITLE_DISPLAY_LIMIT, USER
@@ -26,11 +27,7 @@ class Category(PublishableTimestampedModel):
         verbose_name_plural = 'Категории'
 
     def __str__(self):
-        return (
-            self.title[:TITLE_DISPLAY_LIMIT] + '...'
-            if len(self.title) > TITLE_DISPLAY_LIMIT
-            else self.title
-        )
+        return Truncator(self.title).chars(TITLE_DISPLAY_LIMIT)
 
 
 class Location(PublishableTimestampedModel):
@@ -44,11 +41,7 @@ class Location(PublishableTimestampedModel):
         verbose_name_plural = 'Местоположения'
 
     def __str__(self):
-        return (
-            self.name[:TITLE_DISPLAY_LIMIT] + '...'
-            if len(self.name) > TITLE_DISPLAY_LIMIT
-            else self.name
-        )
+        return Truncator(self.name).chars(TITLE_DISPLAY_LIMIT)
 
 
 class Post(PublishableTimestampedModel):
@@ -92,11 +85,7 @@ class Post(PublishableTimestampedModel):
         verbose_name_plural = 'Публикации'
 
     def __str__(self):
-        return (
-            self.title[:TITLE_DISPLAY_LIMIT] + '...'
-            if len(self.title) > TITLE_DISPLAY_LIMIT
-            else self.title
-        )
+        return Truncator(self.title).chars(TITLE_DISPLAY_LIMIT)
 
 
 class Comment(models.Model):
@@ -118,8 +107,4 @@ class Comment(models.Model):
         verbose_name_plural = 'Комментарии'
 
     def __str__(self):
-        return (
-            self.text[:TITLE_DISPLAY_LIMIT] + '...'
-            if len(self.text) > TITLE_DISPLAY_LIMIT
-            else self.text
-        )
+        return Truncator(self.text).chars(TITLE_DISPLAY_LIMIT)
