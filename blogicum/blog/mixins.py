@@ -13,7 +13,7 @@ class PostsQuerySetMixin:
     def get_queryset(self):
         return (
             Post.objects
-            .annotate(comment_count=Count('comment'))
+            .annotate(comment_count=Count('comments'))
             .filter(
                 category__is_published=True,
                 is_published=True,

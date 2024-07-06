@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -53,7 +54,12 @@ class ProfileListView(PostsQuerySetMixin, ListView):
         user = self.request.user
         qs = super().get_queryset()
         if user.username == self.kwargs['username']:
-            return Post.objects.filter(author=user).order_by('-pub_date')
+            return (
+                Post.objects
+                .annotate(comment_count=Count('comments'))
+                .filter(author=user)
+                .order_by('-pub_date')
+            )
         else:
             return qs.filter(author__username=self.kwargs['username'])
 

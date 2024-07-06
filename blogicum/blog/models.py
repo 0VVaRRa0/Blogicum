@@ -59,11 +59,13 @@ class Post(PublishableTimestampedModel):
     author = models.ForeignKey(
         USER,
         verbose_name='Автор публикации',
+        related_name='posts',
         on_delete=models.CASCADE
     )
     location = models.ForeignKey(
         Location,
         verbose_name='Местоположение',
+        related_name='posts',
         on_delete=models.SET_NULL,
         blank=True,
         null=True
@@ -71,6 +73,7 @@ class Post(PublishableTimestampedModel):
     category = models.ForeignKey(
         Category,
         verbose_name='Категория',
+        related_name='posts',
         on_delete=models.SET_NULL,
         null=True
     )
@@ -92,11 +95,13 @@ class Comment(models.Model):
     author = models.ForeignKey(
         USER,
         verbose_name='Автор',
+        related_name='comments',
         on_delete=models.CASCADE
     )
     post = models.ForeignKey(
         Post,
         verbose_name='Пост',
+        related_name='comments',
         on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(auto_now_add=True)
