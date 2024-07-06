@@ -64,7 +64,7 @@ class ProfileListView(PostsQuerySetMixin, ListView):
             return qs.filter(author__username=self.kwargs['username'])
 
 
-class ProfileUpdateView(UpdateView):
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     fields = ('first_name', 'last_name', 'username', 'email')
     model = USER
     template_name = 'registration/registration_form.html'
