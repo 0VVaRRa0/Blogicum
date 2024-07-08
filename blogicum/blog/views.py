@@ -1,5 +1,4 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
@@ -26,6 +25,9 @@ class HomepageListView(PostsQuerySetMixin, ListView):
     paginate_by = POSTS_PER_PAGE
     template_name = "blog/index.html"
 
+    def get_queryset(self):
+        return self.get_filtered_queryset()
+
 
 class CategoryPostsListView(PostsQuerySetMixin, ListView):
     model = Post
@@ -37,7 +39,7 @@ class CategoryPostsListView(PostsQuerySetMixin, ListView):
             Category,
             slug=self.kwargs['category_slug']
         )
-        qs = super().get_queryset()
+        qs = self.get_filtered_queryset()
         return qs.filter(category=category_obj)
 
     def get_context_data(self, **kwargs):
@@ -68,16 +70,11 @@ class ProfileListView(PostsQuerySetMixin, ListView):
             username=self.kwargs['username']
         )
         if user_obj == self.request.user:
-            return (
-                Post.objects
-                .annotate(comment_count=Count('comments'))
-                .filter(author=user_obj)
-                .order_by('-pub_date')
-                .select_related('category', 'location')
-            )
+            qs = self.get_base_queryset()
         else:
-            qs = super().get_queryset()
-            return qs.filter(author=user_obj)
+            qs = self.get_filtered_queryset()
+
+        return qs.filter(author=user_obj)
 
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):

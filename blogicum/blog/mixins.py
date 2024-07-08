@@ -12,17 +12,22 @@ from .models import Post
 
 class PostsQuerySetMixin:
 
-    def get_queryset(self):
+    def get_base_queryset(self):
         return (
             Post.objects
             .annotate(comment_count=Count('comments'))
-            .filter(
+            .order_by('-pub_date')
+            .select_related('author', 'category', 'location')
+        )
+
+    def get_filtered_queryset(self):
+        qs = self.get_base_queryset()
+        return (
+            qs.filter(
                 category__is_published=True,
                 is_published=True,
                 pub_date__lte=timezone.localtime()
             )
-            .order_by('-pub_date')
-            .select_related('author', 'category', 'location')
         )
 
 
