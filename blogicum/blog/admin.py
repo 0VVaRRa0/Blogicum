@@ -13,7 +13,7 @@ class CategoryAdmin(AdminZoneShortNamesMixin, admin.ModelAdmin):
 @admin.register(Comment)
 class CommentAdmin(AdminZoneShortNamesMixin, admin.ModelAdmin):
     list_display = ('author', 'post', 'short_text')
-    search_fields = ('post',)
+    search_fields = ('post__title',)
 
 
 @admin.register(Location)

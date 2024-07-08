@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models import Count
 from django.shortcuts import redirect
@@ -37,17 +38,17 @@ class OnlyAuthorMixin(UserPassesTestMixin):
 
 class AdminZoneShortNamesMixin:
 
+    @admin.display(description='Заголовок')
     def short_title(self, obj):
         return Truncator(obj.title).chars(TITLE_DISPLAY_LIMIT)
-    short_title.short_description = 'Заголовок'
 
+    @admin.display(description='Текст')
     def short_text(self, obj):
         return Truncator(obj.text).chars(TITLE_DISPLAY_LIMIT)
-    short_text.short_description = 'Текст'
 
+    @admin.display(description='Название')
     def short_name(self, obj):
         return Truncator(obj.name).chars(TITLE_DISPLAY_LIMIT)
-    short_name.short_description = 'Название'
 
 
 class CommentSuccessUrlMixin:

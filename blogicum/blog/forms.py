@@ -18,6 +18,7 @@ class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = (
+            'is_published',
             'title',
             'text',
             'pub_date',
