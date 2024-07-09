@@ -99,21 +99,16 @@ class PostDetailView(DetailView):
     def get_context_data(self, **kwargs):
         user = self.request.user
         context = super().get_context_data(**kwargs)
-        if user == Post.objects.get(id=self.kwargs['post_id']).author:
-            post_obj = get_object_or_404(
-                Post,
-                id=self.kwargs['post_id']
-            )
-        else:
+        post_obj = self.get_object()
+        if user != post_obj.author:
             post_obj = get_object_or_404(
                 Post,
                 id=self.kwargs['post_id'],
-                pub_date__lte=timezone.now(),
+                category__is_published=True,
                 is_published=True,
-                category__is_published=True
+                pub_date__lte=timezone.now()
             )
-        context['post'] = post_obj
-        context['comments'] = post_obj.comments.all()
+        context['comments'] = post_obj.comments.select_related('author')
         context['form'] = CommentForm()
         return context
 
@@ -160,8 +155,8 @@ class PostDeleteView(LoginRequiredMixin, OnlyAuthorMixin, DeleteView):
 
 
 class CommentCreateView(
-    CommentSuccessUrlMixin,
     LoginRequiredMixin,
+    CommentSuccessUrlMixin,
     CreateView
 ):
     form_class = CommentForm
@@ -177,8 +172,8 @@ class CommentCreateView(
 
 
 class CommentUpdateView(
-    CommentSuccessUrlMixin,
     LoginRequiredMixin,
+    CommentSuccessUrlMixin,
     OnlyAuthorMixin,
     UpdateView
 ):
@@ -189,8 +184,8 @@ class CommentUpdateView(
 
 
 class CommentDeleteView(
-    CommentSuccessUrlMixin,
     LoginRequiredMixin,
+    CommentSuccessUrlMixin,
     OnlyAuthorMixin,
     DeleteView
 ):
