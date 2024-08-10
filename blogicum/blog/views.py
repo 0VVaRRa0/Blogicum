@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
@@ -18,6 +19,14 @@ from .mixins import (
     PostsQuerySetMixin
 )
 from .models import Category, Comment, Post
+from .serializers import PostSerializer
+
+
+def get_post(request, post_id):
+    if request.method == 'GET':
+        post = get_object_or_404(Post, id=post_id)
+        serializer = PostSerializer(post)
+        return JsonResponse(serializer.data)
 
 
 class HomepageListView(PostsQuerySetMixin, ListView):

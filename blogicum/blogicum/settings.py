@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'debug_toolbar',
     'django_bootstrap5',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

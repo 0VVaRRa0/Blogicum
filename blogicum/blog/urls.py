@@ -52,4 +52,5 @@ urlpatterns = [
         'profile/<str:username>/',
         views.ProfileListView.as_view(), name='profile'
     ),
+    path('api/<int:post_id>', views.get_post, name='api_post')
 ]
