@@ -1,3 +1,5 @@
+import os
+
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -6,12 +8,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-$4_+ig5rimzk)rmo8_#ogg_36%j&(8a7iea61o$=0ftgpf6^$#'
 
 
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-]
+ALLOWED_HOSTS = ['ioannvva.beget.tech']
 
 
 INSTALLED_APPS = [
@@ -103,6 +102,8 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/auth/login/'
 
 STATIC_URL = 'static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = [BASE_DIR / 'static_dev']
 
