@@ -16,7 +16,7 @@ Bash: `source venv/Scripts/activate`, PowerShell: `venv/Scripts/activate`
 5. По желанию, загрузите фикстуры с заготовленными постами `python manage.py loaddata db.json`
 6. Запустите сервер разработки `python manage.py runserver`
 
-Проект доступен локально по адресу `localhost:8000` или `127.0.0.0:8000`
+Проект доступен локально по адресу `localhost:8000` или `127.0.0.1:8000`
 
 ## Автор: Иван Данилин
 GitHub: [0VVaRRa0](https://github.com/0VVaRRa0)    
